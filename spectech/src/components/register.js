@@ -23,7 +23,7 @@ const RegistrationForm = ({navigate}) => {
             if (customertype === 'store') {
                 navigate('storeregistration');
             } else {
-                navigate('home');
+                navigate('LoginForm');
             }
         })
         .catch((error) => {
