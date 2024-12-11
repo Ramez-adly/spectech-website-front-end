@@ -9,10 +9,10 @@ const RegistrationForm = ({navigate}) => {
     let message = '';
     
     const registerUser = () => {
-        fetch('http://localhost:123/user/register', {
-            method: 'POST',
+        fetch('http://localhost:5555/user/register', {
+                method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password, customertype }),
+                body: JSON.stringify({ name, email, password, customertype }),
         })
         .then((response) => {
             if (!response.ok) {
@@ -36,27 +36,27 @@ const RegistrationForm = ({navigate}) => {
         <div className="form-section">
             <h2>User Registration</h2>
             <form>
-                <input
-                    type="text"
-                    placeholder="Name"
+                    <input
+                        type="text"
+                        placeholder="Name"
                     onChange={(e) => (name = e.target.value)}
-                    required
-                />
+                        required
+                    />
                 <br />
-                <input
-                    type="email"
-                    placeholder="Email"
+                    <input
+                        type="email"
+                        placeholder="Email"
                     onChange={(e) => (email = e.target.value)}
-                    required
-                />
+                        required
+                    />
                 <br />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    onChange={(e) => (password = e.target.value)}
-                    required
-                />
-                <br />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        onChange={(e) => (password = e.target.value)}
+                        required
+                    />
+                    <br />
                 <div className="switch-container">
                     <span className="switch-label">Customer</span>
                     <label className="switch">

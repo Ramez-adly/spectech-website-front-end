@@ -3,6 +3,7 @@ import LoginForm from './loginForm';
 import RegistrationForm from './register';
 import Home from './Home';
 import Navbar from "./navbar";
+import StoreRegistration from './StoreRegistration';
 
 const Main = () => {
     const [currentPage, setCurrentPage] = useState('home');

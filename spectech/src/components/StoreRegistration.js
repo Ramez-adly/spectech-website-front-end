@@ -43,37 +43,39 @@ const StoreRegistration = ({navigate}) => {
             <form>
                 <input
                     type="text"
-                    placeholder="Store Name"
+                    <input
+                        type="text"
+                        placeholder="Store Name"
                     onChange={(e) => (storeName = e.target.value)}
-                    required
-                />
+                        required
+                    />
                 <textarea
                     placeholder="Store Description"
                     onChange={(e) => (storeDescription = e.target.value)}
                     required
                 />
-                <input
-                    type="text"
+                    <input
+                        type="text"
                     placeholder="Location"
                     onChange={(e) => (location = e.target.value)}
-                    required
-                />
-                <input
-                    type="tel"
-                    placeholder="Phone Number"
+                        required
+                    />
+                    <input
+                        type="tel"
+                        placeholder="Phone Number"
                     onChange={(e) => (phoneNumber = e.target.value)}
-                    required
-                />
-                <input
-                    type="text"
+                        required
+                    />
+                    <input
+                        type="text"
                     placeholder="Opening Hours"
                     onChange={(e) => (openingHours = e.target.value)}
-                    required
-                />
+                        required
+                    />
                 <div className="switch-container">
                     <span className="switch-label">Delivery Available</span>
                     <label className="switch">
-                        <input
+                    <input
                             type="checkbox"
                             onChange={(e) => (deliveryAvailable = e.target.checked)}
                         />

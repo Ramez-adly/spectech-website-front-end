@@ -8,7 +8,7 @@ const LoginForm = ({ navigate }) => {
     let name = '';
 
     const loginUser = () => {
-        fetch('http://localhost:123/user/login', {
+        fetch('http://localhost:5555/user/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, name }),
