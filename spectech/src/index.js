@@ -4,11 +4,13 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import LoginForm from './components/loginForm';
 import Register from './components/register';
-
+import Home from './components/Home';
+import Navbar from './components/navbar';
+import Main from './components/main';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-  <Register/>    
+  <Main/>    
   </React.StrictMode>
 );
 

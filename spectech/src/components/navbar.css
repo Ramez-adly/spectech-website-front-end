@@ -1,0 +1,81 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1a1a1a;
+    padding: 1rem 2rem;
+    color: white;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+}
+.navbar .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: linear-gradient(45deg, #3498db, #2ecc71); 
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: transform 0.3s ease;
+}
+/* Logo hover animation */
+.navbar .logo:hover {
+    transform: scale(1.05); /*  enlargement on hover */
+}
+
+.navbar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.navbar ul li {
+    position: sticky;
+}
+.navbar ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.navbar ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #3498db;
+}
+
+  .navbar ul li a[href="/login"],
+  .navbar ul li a[href="/register"] {
+    background-color: #3498db; 
+    color: white;
+    padding: 0.5rem 1.2rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.navbar ul li a[href="/register"] {
+    background-color: #2ecc71;
+    }
+
+    .navbar ul {
+    gap: 0rem;
+    }
+
+    .navbar ul li a {
+        padding: 0.4rem 0.8rem;
+    font-size: 0.rem;
+    }
+    .navbar .logo {
+        font-size: 1.2rem;
+}
