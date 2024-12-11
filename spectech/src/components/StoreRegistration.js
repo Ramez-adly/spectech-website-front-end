@@ -41,8 +41,6 @@ const StoreRegistration = ({navigate}) => {
         <div className="form-section">
             <h2>Store Registration</h2>
             <form>
-                <input
-                    type="text"
                     <input
                         type="text"
                         placeholder="Store Name"
