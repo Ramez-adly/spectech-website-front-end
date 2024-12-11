@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import './LoginForm.css';
 const LoginForm = ({ navigate }) => {
     let email = '';
     let password = '';
