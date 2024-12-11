@@ -1,0 +1,80 @@
+.form-section {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Title styling */
+.form-section h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Input fields styling */
+.form-section input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Placeholder styling */
+.form-section input::placeholder {
+    color: #aaa;
+}
+
+/* Button styling */
+.form-section button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-section button:hover {
+    background-color: #0056b3;
+}
+
+/* Register link styling */
+.form-section p {
+    text-align: center;
+    margin-top: 15px;
+    color: #666;
+}
+
+.form-section span {
+    color: #007BFF;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.form-section span:hover {
+    color: #0056b3;
+}
+
+/* Error message styling */
+.error-message {
+    color: #dc3545;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* Loading state for button */
+.form-section button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
