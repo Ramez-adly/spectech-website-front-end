@@ -1,13 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import './Cart.css';
 
-const Cart = () => {
+const Cart = ({ navigate }) => {
     const [cart, setCart] = useState([]);
     const [total, setTotal] = useState(0);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        checkAuth();
+        loadCart();
+    }, []);
+
+    const checkAuth = async () => {
+        try {
+            const response = await fetch('http://localhost:5555/check-auth', {
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                navigate('login');
+                return;
+            }
+        } catch (err) {
+            console.error('Auth check failed:', err);
+            navigate('login');
+        }
+    };
+
+    const loadCart = () => {
         const savedCart = document.cookie
             .split('; ')
             .find(row => row.startsWith('cart='));
@@ -17,7 +42,8 @@ const Cart = () => {
             setCart(cartItems);
             calculateTotal(cartItems);
         }
-    }, []);
+        setLoading(false);
+    };
 
     const calculateTotal = (items) => {
         const sum = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -83,6 +109,14 @@ const Cart = () => {
             setLoading(false);
         }
     };
+
+    if (loading) {
+        return (
+            <div className="cart-container">
+                <h2>Loading...</h2>
+            </div>
+        );
+    }
 
     if (cart.length === 0) {
         return (

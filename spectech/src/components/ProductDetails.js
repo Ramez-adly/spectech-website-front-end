@@ -1,49 +1,90 @@
 import React, { useState, useEffect } from 'react';
 import './ProductDetails.css';
 
-const ProductDetails = ({ productId, navigate }) => {
+const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
     const [product, setProduct] = useState(null);
     const [storePrices, setStorePrices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchProductDetails = async () => {
-            try {
-                // Fetch product details
-                const productResponse = await fetch(`http://localhost:5555/products/search?id=${productId}`);
-                if (!productResponse.ok) throw new Error('Failed to fetch product details');
-                const productData = await productResponse.json();
-                setProduct(productData[0]);
-
-                // Fetch stores with prices for this product using the new endpoint
-                const storeResponse = await fetch(`http://localhost:5555/products/${productId}/stores`);
-                if (!storeResponse.ok) throw new Error('Failed to fetch store prices');
-                const storesWithPrices = await storeResponse.json();
-                setStorePrices(storesWithPrices);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (productId) {
-            fetchProductDetails();
-        }
+        fetchProductDetails();
     }, [productId]);
 
-    const addToCart = (storeId, price) => {
-        const cartItem = {
-            id: product.ID,
-            name: product.name,
-            price: price,
-            storeId: storeId,
-            quantity: 1,
-            image_url: product.image_url
-        };
+    const fetchProductDetails = async () => {
+        try {
+            // Make sure productId exists
+            if (!productId) {
+                setError('No product ID provided');
+                return;
+            }
+
+            console.log('Fetching product details for ID:', productId);
+
+            // Use direct product endpoint instead of search
+            const productResponse = await fetch(`http://localhost:5555/products/${productId}`);
+            if (!productResponse.ok) throw new Error('Failed to fetch product details');
+            const productData = await productResponse.json();
+            
+            if (!productData) {
+                throw new Error('Product not found');
+            }
+            
+            console.log('Product data:', productData);
+            setProduct(productData);
+
+            const storeResponse = await fetch(`http://localhost:5555/products/${productId}/stores`);
+            if (!storeResponse.ok) throw new Error('Failed to fetch store prices');
+            const storesWithPrices = await storeResponse.json();
+            console.log('Store prices:', storesWithPrices);
+            setStorePrices(storesWithPrices);
+        } catch (err) {
+            console.error('Error fetching product:', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const addToCart = async (storeId, price) => {
+        if (!isAuthenticated) {
+            alert('Please log in to add items to cart');
+            navigate('login');
+            return;
+        }
 
         try {
+            // First verify authentication
+            const authResponse = await fetch('http://localhost:5555/check-auth', {
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const authData = await authResponse.json();
+            if (!authData.authenticated) {
+                alert('Please log in to add items to cart');
+                navigate('login');
+                return;
+            }
+
+            // Check if user is a customer
+            if (authData.customertype !== 'customer') {
+                alert('Only customers can add items to cart');
+                return;
+            }
+
+            const cartItem = {
+                id: product.ID,
+                name: product.name,
+                price: price,
+                storeId: storeId,
+                quantity: 1,
+                image_url: product.image_url
+            };
+
             // Get existing cart
             const savedCart = document.cookie
                 .split('; ')
@@ -58,7 +99,7 @@ const ProductDetails = ({ productId, navigate }) => {
             const existingItemIndex = cart.findIndex(item => 
                 item.id === cartItem.id && item.storeId === cartItem.storeId
             );
-
+    
             if (existingItemIndex !== -1) {
                 // Update quantity if item exists
                 cart[existingItemIndex].quantity += 1;
@@ -67,21 +108,18 @@ const ProductDetails = ({ productId, navigate }) => {
                 cart.push(cartItem);
             }
 
-            // Save updated cart with expiration of 7 days
+            // Save cart with a 5-hour expiration (matching backend token expiration)
             const expirationDate = new Date();
-            expirationDate.setDate(expirationDate.getDate() + 7);
-            document.cookie = `cart=${encodeURIComponent(JSON.stringify(cart))}; path=/; expires=${expirationDate.toUTCString()}`;
-            
+            expirationDate.setTime(expirationDate.getTime() + (5 * 60 * 60 * 1000));
+            document.cookie = `cart=${encodeURIComponent(JSON.stringify(cart))}; expires=${expirationDate.toUTCString()}; path=/`;
+    
             // Dispatch cart update event
             window.dispatchEvent(new Event('cart-update'));
-
-            // Show success message
+    
             alert('Item added to cart successfully!');
-
-            // Navigate to cart using the custom navigation
             navigate('cart');
         } catch (error) {
-            console.error('Error adding item to cart:', error);
+            console.error('Error:', error);
             alert('Failed to add item to cart. Please try again.');
         }
     };
@@ -149,7 +187,7 @@ const ProductDetails = ({ productId, navigate }) => {
                 ) : (
                     <div className="store-list">
                         {storePrices
-                            .sort((a, b) => a.price - b.price) // Sort by price
+                            .sort((a, b) => a.price - b.price)
                             .map((store) => (
                                 <div key={store.storeId} className="store-card">
                                     <div className="store-info">
@@ -162,9 +200,10 @@ const ProductDetails = ({ productId, navigate }) => {
                                     </div>
                                     <button 
                                         onClick={() => addToCart(store.storeId, store.price)}
-                                        className="add-to-cart-btn"
+                                        className={`add-to-cart-btn ${!isAuthenticated ? 'disabled' : ''}`}
+                                        disabled={!isAuthenticated}
                                     >
-                                        Add to Cart
+                                        {isAuthenticated ? 'Add to Cart' : 'Login to Add to Cart'}
                                     </button>
                                 </div>
                             ))}

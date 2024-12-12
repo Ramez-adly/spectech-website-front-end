@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './AdminDashboard.css';
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ navigate }) => {
     const [users, setUsers] = useState([]);
     const [stores, setStores] = useState([]);
     const [products, setProducts] = useState([]);
@@ -10,8 +10,30 @@ const AdminDashboard = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        checkAuth();
         fetchData();
     }, [activeTab]);
+
+    const checkAuth = async () => {
+        try {
+            const response = await fetch('http://localhost:5555/check-auth', {
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            
+            if (!response.ok || !data.isAdmin) {
+                navigate('login');
+                return;
+            }
+        } catch (err) {
+            console.error('Auth check failed:', err);
+            navigate('login');
+        }
+    };
 
     const fetchData = async () => {
         setLoading(true);
