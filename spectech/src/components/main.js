@@ -7,6 +7,7 @@ import StoreRegistration from './StoreRegistration';
 import Cart from './Cart';
 import ProductDetails from './ProductDetails';
 import Footer from './Footer';
+import AdminDashboard from './AdminDashboard';
 import './main.css';
 
 const Main = () => {
@@ -32,6 +33,8 @@ const Main = () => {
                 return <Cart navigate={navigate} />;
             case 'product-details':
                 return <ProductDetails productId={pageProps.productId} navigate={navigate} />;
+            case 'admin':
+                return <AdminDashboard />;
             default:
                 return null;
         }
