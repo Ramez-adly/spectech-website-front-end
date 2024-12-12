@@ -12,6 +12,7 @@ const StoreRegistration = ({navigate}) => {
 
     const registerStore = () => {
         fetch('http://localhost:5555/store/register', {
+            credentials: 'include',
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 

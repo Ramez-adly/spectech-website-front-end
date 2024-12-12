@@ -1,31 +1,26 @@
 .navbar {
+    background-color: #2c5282;
+    padding: 0.5rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #1a1a1a;
-    padding: 1rem 2rem;
-    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     position: fixed;
     width: 100%;
     top: 0;
     left: 0;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
 }
+
 .navbar .logo {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    color: white;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
     background: linear-gradient(45deg, #3498db, #2ecc71); 
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     transition: transform 0.3s ease;
-}
-/* Logo hover animation */
-.navbar .logo:hover {
-    transform: scale(1.05); /*  enlargement on hover */
 }
 
 .navbar ul {
@@ -33,49 +28,83 @@
     padding: 0;
     margin: 0;
     display: flex;
-    gap: 1.5rem;
+    gap: 1rem;
     align-items: center;
 }
 
 .navbar ul li {
     position: relative;
+    margin: 0 0.8rem;
 }
+
 .navbar ul li a {
-    color: #fff;
+    color: white;
     text-decoration: none;
-    font-size: 1rem;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    padding: 0.3rem 0.5rem;
     border-radius: 4px;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s;
 }
 
 .navbar ul li a:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    color: #3498db;
 }
 
-  .navbar ul li a[href="/login"],
-  .navbar ul li a[href="/register"] {
+.navbar ul li a[href="/login"],
+.navbar ul li a[href="/register"] {
     background-color: #3498db; 
     color: white;
-    padding: 0.5rem 1.2rem;
+    padding: 0.3rem 0.5rem;
     border-radius: 4px;
     transition: all 0.3s ease;
 }
 
 .navbar ul li a[href="/register"] {
     background-color: #2ecc71;
-    }
+}
 
-    .navbar ul {
-    gap: 1rem;
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.4rem 1rem;
     }
-
+    
+    .navbar ul li {
+        margin: 0 0.4rem;
+    }
+    
     .navbar ul li a {
-        padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
+        font-size: 0.8rem;
     }
+    
     .navbar .logo {
         font-size: 1.2rem;
+    }
+}
+
+.cart-icon-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cart-icon-container svg {
+    font-size: 1.2rem;
+    margin-right: 5px;
+}
+
+.cart-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    padding: 1px 5px;
+    font-size: 0.7rem;
+    min-width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
 }

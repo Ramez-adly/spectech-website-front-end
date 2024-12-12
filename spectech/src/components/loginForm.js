@@ -2,42 +2,45 @@ import React, { useState } from 'react';
 import './LoginForm.css';
 
 const LoginForm = ({ navigate }) => {
-    let email = '';
-    let password = '';
-    let message = '';
-    let name = '';
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
-    const loginUser = () => {
-        fetch('http://localhost:5555/user/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, name }),
-        })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Invalid credentials');
+    const loginUser = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('http://localhost:5555/user/login', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password }),
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+            
+            if (data.message === "Login successful") {  
+                window.dispatchEvent(new Event('auth-change'));
+                alert('Welcome back!');
+                navigate('home');
+            } else {
+                throw new Error(data.message || 'Login failed');
             }
-            //message = 'Login successful';
-            document.cookie = `Username=${name}; path=/`
-            alert(`Welcome, ${name}!`);
-            navigate('home');
-            //alert(message);
-        })
-        .catch((error) => {
-            message = error.message;
-            alert(message);
-        });
+        } catch (error) {
+            alert(error.message);
+        }
     };
 
     return (
         <div className="form-section">
             <h2>User Login</h2>
-            <form>
+            <form onSubmit={loginUser}>
                 <div>
                     <input
                         type="email"
                         placeholder="Email"
-                        onChange={(e) => (email = e.target.value)}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                     />
                 </div>
@@ -46,21 +49,12 @@ const LoginForm = ({ navigate }) => {
                     <input
                         type="password"
                         placeholder="Password"
-                        onChange={(e) => (password = e.target.value)}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                     />
                 </div>
-                <br />
-                <div>
-                    <input
-                        type="text"
-                        placeholder="Name"
-                        onChange={(e) => (name = e.target.value)}
-                        required
-                    />
-                </div>
-                <br />
-                <button type="button" onClick={loginUser}>
+                <button type="submit">
                     Login
                 </button>
                 <p>

@@ -11,6 +11,7 @@ const RegistrationForm = ({navigate}) => {
     const registerUser = () => {
         fetch('http://localhost:5555/user/register', {
                 method: 'POST',
+                credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password, customertype }),
         })

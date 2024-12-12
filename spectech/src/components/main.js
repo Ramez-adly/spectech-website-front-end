@@ -4,12 +4,18 @@ import RegistrationForm from './register';
 import Home from './Home';
 import Navbar from "./navbar";
 import StoreRegistration from './StoreRegistration';
+import Cart from './Cart';
+import ProductDetails from './ProductDetails';
+import Footer from './Footer';
+import './main.css';
 
 const Main = () => {
     const [currentPage, setCurrentPage] = useState('home');
+    const [pageProps, setPageProps] = useState({});
 
-    const navigate = (page) => {
+    const navigate = (page, props = {}) => {
         setCurrentPage(page);
+        setPageProps(props);
     };
 
     const renderPage = () => {
@@ -21,15 +27,23 @@ const Main = () => {
             case 'storeregistration':
                 return <StoreRegistration navigate={navigate} />;
             case 'home':
-            default:
                 return <Home navigate={navigate} />;
+            case 'cart':
+                return <Cart navigate={navigate} />;
+            case 'product-details':
+                return <ProductDetails productId={pageProps.productId} navigate={navigate} />;
+            default:
+                return null;
         }
     };
 
     return (
         <div className="main-container">
             <Navbar navigate={navigate}/>
-            {renderPage()}
+            <div className="content">
+                {renderPage()}
+            </div>
+            <Footer navigate={navigate}/>
         </div>
     );
 };
