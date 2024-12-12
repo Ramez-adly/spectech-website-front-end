@@ -15,7 +15,7 @@ const Main = () => {
     const [currentPage, setCurrentPage] = useState('home');
     const [pageProps, setPageProps] = useState({});
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [userType, setUserType] = useState(null);
 
     useEffect(() => {
         checkAuthStatus();
@@ -32,31 +32,38 @@ const Main = () => {
             });
             const data = await response.json();
             
-            setIsAuthenticated(response.ok);
-            setIsAdmin(data.isAdmin || false);
-
-            // Redirect if trying to access protected pages while not authenticated
-            if (!response.ok) {
-                if (['cart', 'admin'].includes(currentPage)) {
+            if (response.ok && data.authenticated) {
+                setIsAuthenticated(true);
+                setUserType(data.customertype);
+            } else {
+                setIsAuthenticated(false);
+                setUserType(null);
+                // Redirect if trying to access protected pages while not authenticated
+                if (['cart', 'admin', 'store-dashboard'].includes(currentPage)) {
                     setCurrentPage('login');
                 }
             }
         } catch (err) {
             console.error('Auth check failed:', err);
             setIsAuthenticated(false);
-            setIsAdmin(false);
+            setUserType(null);
         }
     };
 
     const navigate = (page, props = {}) => {
         // Check if page requires authentication
-        if (['cart', 'admin'].includes(page) && !isAuthenticated) {
+        if (['cart', 'admin', 'store-dashboard', 'profile'].includes(page) && !isAuthenticated) {
             setCurrentPage('login');
             return;
         }
 
-        // Check if page requires admin privileges
-        if (page === 'admin' && !isAdmin) {
+        // Check if page requires specific user type
+        if (page === 'admin' && userType !== 'admin') {
+            setCurrentPage('home');
+            return;
+        }
+
+        if (page === 'store-dashboard' && userType !== 'store') {
             setCurrentPage('home');
             return;
         }
@@ -78,13 +85,20 @@ const Main = () => {
             case 'cart':
                 return <Cart navigate={navigate} />;
             case 'product-details':
-                return <ProductDetails productId={pageProps.productId} navigate={navigate} isAuthenticated={isAuthenticated} />;
+                return <ProductDetails 
+                    productId={pageProps.productId} 
+                    navigate={navigate} 
+                    isAuthenticated={isAuthenticated}
+                />;
             case 'products':
-                return <Products navigate={navigate} isAuthenticated={isAuthenticated} />;
+                return <Products 
+                    navigate={navigate} 
+                    isAuthenticated={isAuthenticated}
+                />;
             case 'admin':
                 return <AdminDashboard navigate={navigate} />;
             default:
-                return null;
+                return <Home navigate={navigate} isAuthenticated={isAuthenticated} />;
         }
     };
 
@@ -92,8 +106,8 @@ const Main = () => {
         <div className="main-container">
             <Navbar 
                 navigate={navigate} 
-                isAuthenticated={isAuthenticated} 
-                isAdmin={isAdmin}
+                isAuthenticated={isAuthenticated}
+                userType={userType}
             />
             <div className="content">
                 {renderPage()}

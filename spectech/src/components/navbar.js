@@ -144,7 +144,7 @@ const Navbar = ({ navigate }) => {
           return (
               <>
                   {commonLinks}
-                  <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('admin'); }}>Admin Dashboard</a></li>
+                  <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('admin-dashboard'); }}>Admin Dashboard</a></li>
                   <li><a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>Logout</a></li>
               </>
           );
