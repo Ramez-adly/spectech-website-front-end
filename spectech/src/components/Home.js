@@ -68,9 +68,7 @@ const Home = ({ navigate }) => {
                             <li>✓ Expert technical support</li>
                             <li>✓ Fast shipping</li>
                         </ul>
-                        <button onClick={() => navigate('register')} className="secondary-cta">
-                            Join Us Today
-                        </button>
+                        
                     </div>
                 </div>
             </div>
