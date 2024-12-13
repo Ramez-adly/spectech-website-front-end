@@ -119,13 +119,13 @@ const Navbar = ({ navigate }) => {
           return (
               <>
                   {commonLinks}
+                  <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('PCBuilder'); }}>PC Builder</a></li>
                   <li className="cart-icon-container">
                       <a href="#" onClick={(e) => { e.preventDefault(); navigate('cart'); }}>
                         <FaShoppingCart />
                         {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
                     </a>
                 </li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('profile'); }}>My Profile</a></li>
                 <li><a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>Logout</a></li>
               </>
           );
@@ -135,7 +135,6 @@ const Navbar = ({ navigate }) => {
               <>
                   {commonLinks}
                   <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('store-dashboard'); }}>Store Dashboard</a></li>
-                  <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('profile'); }}>My Profile</a></li>
                   <li><a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>Logout</a></li>
               </>
           );
@@ -144,7 +143,7 @@ const Navbar = ({ navigate }) => {
           return (
               <>
                   {commonLinks}
-                  <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('admin'); }}>Admin Dashboard</a></li>
+                  <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('AdminDashboard'); }}>Admin Dashboard</a></li>
                   <li><a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>Logout</a></li>
               </>
           );

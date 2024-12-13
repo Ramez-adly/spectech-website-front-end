@@ -5,65 +5,73 @@ const RegistrationForm = ({navigate}) => {
     let name = '';
     let email = '';
     let password = '';
-    let customertype = 'regular';
+    let customertype = 'customer';
     let message = '';
-    
-    const registerUser = () => {
-        fetch('http://localhost:5555/user/register', {
+
+    const registerUser = async () => {
+        try {
+            const response = await fetch('http://localhost:5555/users/register', {
                 method: 'POST',
                 credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password, customertype }),
-        })
-        .then((response) => {
+            });
+
+            const data = await response.json();
+            console.log('Registration response:', data);
+
             if (!response.ok) {
-                throw new Error('Registration failed');
+                throw new Error(data.message || 'Registration failed');
             }
+
             message = 'Registration successful';
             alert(message);
+
             if (customertype === 'store') {
                 navigate('storeregistration');
             } else {
-                navigate('LoginForm');
+                navigate('login');
             }
-        })
-        .catch((error) => {
+        } catch (error) {
             message = error.message;
             alert(message);
-        });
+        }
     };
 
     return (
         <div className="form-section">
             <h2>User Registration</h2>
             <form>
-                    <input
-                        type="text"
-                        placeholder="Name"
+                <input
+                    type="text"
+                    placeholder="Name"
                     onChange={(e) => (name = e.target.value)}
-                        required
-                    />
+                    required
+                />
                 <br />
-                    <input
-                        type="email"
-                        placeholder="Email"
+                <input
+                    type="email"
+                    placeholder="Email"
                     onChange={(e) => (email = e.target.value)}
-                        required
-                    />
+                    required
+                />
                 <br />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        onChange={(e) => (password = e.target.value)}
-                        required
-                    />
-                    <br />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    onChange={(e) => (password = e.target.value)}
+                    required
+                />
+                <br />
                 <div className="switch-container">
                     <span className="switch-label">Customer</span>
                     <label className="switch">
                         <input
                             type="checkbox"
-                            onChange={(e) => (customertype = e.target.checked ? 'store' : 'regular')}
+                            onChange={(e) => {
+                                customertype = e.target.checked ? 'store' : 'customer';
+                                console.log('Customer type changed to:', customertype);
+                            }}
                         />
                         <span className="slider round"></span>
                     </label>

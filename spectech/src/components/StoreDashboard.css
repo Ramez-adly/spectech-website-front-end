@@ -1,0 +1,125 @@
+.store-dashboard {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.store-dashboard h1 {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.add-product-section {
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.add-product-section h2 {
+    color: #444;
+    margin-bottom: 20px;
+}
+
+.add-product-section form {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.add-product-section select,
+.add-product-section input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.add-product-section button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-product-section button:hover {
+    background-color: #45a049;
+}
+
+.products-list {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-x: auto;
+}
+
+.products-list h2 {
+    color: #444;
+    padding: 20px;
+    margin: 0;
+    border-bottom: 1px solid #eee;
+}
+
+.products-list table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.products-list th,
+.products-list td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.products-list th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.products-list td span {
+    cursor: pointer;
+}
+
+.products-list td input {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 80px;
+}
+
+.products-list button {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.products-list button:hover {
+    background-color: #c82333;
+}
+
+.message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}

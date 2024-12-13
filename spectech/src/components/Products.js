@@ -25,7 +25,9 @@ const Products = ({ navigate, isAuthenticated }) => {
             'Samsung 980.jpeg',
             'asus tuf gaming 1200W.jpeg',
             'Logitech G502 Hero.jpeg',
-            'Crucial RAM 32GB.jpeg',
+            'Crucial RAM 32GB.jpg',
+            'xigmatek Case.jpeg',
+            'Alseye.jpeg'
         ];
 
         const matchingImage = availableImages.find(imageName => 
@@ -166,13 +168,6 @@ const Products = ({ navigate, isAuthenticated }) => {
                                 }}>{product.name}</h2>
                                 <p>Price: ${product.price.toFixed(2)}</p>
                                 <p>Category: {product.category}</p>
-                                <button 
-                                    className="buy-button"
-                                    onClick={() => addToCart(product)}
-                                    disabled={product.stock <= 0}
-                                >
-                                    {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                                </button>
                             </div>
                         </div>
                     );
