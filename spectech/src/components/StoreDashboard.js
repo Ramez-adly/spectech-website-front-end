@@ -2,336 +2,199 @@ import React, { useState, useEffect } from 'react';
 import './StoreDashboard.css';
 
 const StoreDashboard = () => {
+    const [storeInfo, setStoreInfo] = useState(null);
     const [products, setProducts] = useState([]);
-    const [storeProducts, setStoreProducts] = useState([]);
-    const [selectedProduct, setSelectedProduct] = useState('');
-    const [price, setPrice] = useState('');
-    const [stock, setStock] = useState('');
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [storeID, setStoreID] = useState(null);
-    const [editingStock, setEditingStock] = useState(null);
-    const [newStock, setNewStock] = useState('');
+    const [allProducts, setAllProducts] = useState([]);
+    const [newProduct, setNewProduct] = useState({
+        productID: '',
+        price: '',
+        stock: ''
+    });
+    const [editMode, setEditMode] = useState({});
 
-    // Get store ID from authenticated user
     useEffect(() => {
-        if (storeID) {
-            fetchStoreProducts(storeID);
-        }
-    }, [storeID]);
-
-    // Fetch store information for authenticated user
-    useEffect(() => {
-        const fetchStoreInfo = async () => {
-            try {
-                const response = await fetch('http://localhost:5555/check-auth', {
-                    credentials: 'include'
-                });
-                const data = await response.json();
-
-                if (!data.authenticated || data.customertype !== 'store') {
-                    setMessage('Unauthorized: Please login as a store owner');
-                    return;
-                }
-
-                // Fetch store ID for the authenticated user
-                const storeResponse = await fetch(`http://localhost:5555/stores/user`, {
-                    credentials: 'include'
-                });
-                const storeData = await storeResponse.json();
-
-                if (!storeResponse.ok) {
-                    throw new Error('Failed to fetch store information');
-                }
-
-                setStoreID(storeData.storeId);
-                fetchStoreProducts(storeData.storeId);
-            } catch (error) {
-                console.error('Error fetching store info:', error);
-                setMessage('Failed to load store information');
-            }
-        };
-
         fetchStoreInfo();
+        fetchAllProducts();
     }, []);
-    const fetchStoreProducts = async (storeId) => {
-        if (!storeId) {
-            console.error('No store ID available');
-            setMessage('Store ID not found');
-            return;
+
+    useEffect(() => {
+        if (storeInfo) {
+            fetchStoreProducts();
         }
-    
+    }, [storeInfo]);
+
+    const fetchStoreInfo = async () => {
         try {
-            console.log('Fetching products for storeId:', storeId);
-            const response = await fetch(`http://localhost:5555/stores/${storeId}/products`, {
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+            const response = await fetch('http://localhost:5555/stores/user', {
+                credentials: 'include'
             });
-    
-            console.log('Response status:', response.status);
-            const responseText = await response.text();
-            console.log('Raw response:', responseText);
-    
-            let data;
-            try {
-                data = JSON.parse(responseText);
-                // Ensure data is always an array
-                if (!Array.isArray(data)) {
-                    data = [];
-                    console.warn('Server response was not an array, defaulting to empty array');
-                }
-            } catch (parseError) {
-                console.error('JSON parse error:', parseError);
-                data = []; // Default to empty array on parse error
-            }
-    
-            setStoreProducts(data);
-            console.log('Processed products:', data);
+            if (!response.ok) throw new Error('Failed to fetch store info');
+            const data = await response.json();
+            setStoreInfo(data);
+        } catch (error) {
+            console.error('Error fetching store info:', error);
+        }
+    };
+
+    const fetchAllProducts = async () => {
+        try {
+            const response = await fetch('http://localhost:5555/products');
+            if (!response.ok) throw new Error('Failed to fetch products');
+            const data = await response.json();
+            setAllProducts(data);
         } catch (error) {
             console.error('Error fetching products:', error);
-            setMessage('Failed to load store products');
-            setStoreProducts([]); // Set empty array on error
         }
     };
-    // Fetch available products that can be added to the store
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const response = await fetch('http://localhost:5555/products');
-                if (!response.ok) {
-                    throw new Error('Failed to load products');
-                }
-                const data = await response.json();
-                setProducts(data);
-            } catch (error) {
-                console.error('Error fetching products:', error);
-                setMessage('Failed to load products');
-            }
-        };
-        fetchProducts();
-    }, []);
 
-    const handleSubmit = async (e) => {
+    const fetchStoreProducts = async () => {
+        try {
+            const response = await fetch(`http://localhost:5555/stores/${storeInfo.storeId}/products`, {
+                credentials: 'include'
+            });
+            if (!response.ok) throw new Error('Failed to fetch store products');
+            const data = await response.json();
+            setProducts(data);
+        } catch (error) {
+            console.error('Error fetching store products:', error);
+        }
+    };
+
+    const handleAddProduct = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setMessage('');
-    
-        if (!selectedProduct || !price || !stock) {
-            setMessage('Please fill in all fields');
-            setLoading(false);
-            return;
-        }
-    
         try {
-            const response = await fetch(`http://localhost:5555/stores/${storeID}/products/add`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    productID: selectedProduct,
-                    price: parseFloat(price),
-                    stock: parseInt(stock)
-                })
-            });
-    
-            // First check if response is ok
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Server response:', errorText);
-                throw new Error('Failed to add product');
-            }
-    
-            // Try to parse JSON only if response is ok
-            try {
-                const data = await response.json();
-                setMessage('Product added successfully!');
-                setSelectedProduct('');
-                setPrice('');
-                setStock('');
-                // Add a small delay before fetching products
-                setTimeout(() => {
-                    fetchStoreProducts(storeID);
-                }, 500);
-            } catch (parseError) {
-                console.error('JSON Parse Error:', parseError);
-                throw new Error('Invalid server response');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            setMessage(error.message || 'An error occurred');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleUpdateStock = async (productId) => {
-        if (!newStock || isNaN(newStock) || parseInt(newStock) < 0) {
-            setMessage('Please enter a valid stock number');
-            return;
-        }
-
-        try {
-            const response = await fetch(`http://localhost:5555/stores/${storeID}/products/${productId}/stock`, {
-                method: 'PUT',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ stock: parseInt(newStock) })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to update stock');
-            }
-
-            setMessage('Stock updated successfully!');
-            setEditingStock(null);
-            setNewStock('');
-            fetchStoreProducts(storeID);
-        } catch (error) {
-            console.error('Error:', error);
-            setMessage(error.message);
-        }
-    };
-
-    const handleRemoveProduct = async (productId) => {
-        if (!window.confirm('Are you sure you want to remove this product?')) {
-            return;
-        }
-
-        try {
-            const response = await fetch(`http://localhost:5555/stores/${storeID}/products/${productId}`, {
-                method: 'DELETE',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
+            const response = await fetch(
+                `http://localhost:5555/stores/${storeInfo.storeId}/products/add`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(newProduct)
                 }
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to remove product');
-            }
-
-            setMessage('Product removed successfully!');
-            fetchStoreProducts(storeID);
+            );
+            if (!response.ok) throw new Error('Failed to add product');
+            await fetchStoreProducts();
+            setNewProduct({ productID: '', price: '', stock: '' });
         } catch (error) {
-            console.error('Error:', error);
-            setMessage(error.message);
+            console.error('Error adding product:', error);
         }
     };
 
-    if (!storeID) {
-        return <div className="store-dashboard">
-            <h2>Store Dashboard</h2>
-            <p>{message || 'Loading store information...'}</p>
-        </div>;
+    const handleDeleteProduct = async (productId) => {
+        try {
+            const response = await fetch(
+                `http://localhost:5555/stores/${storeInfo.storeId}/products/${productId}`,
+                {
+                    method: 'DELETE',
+                    credentials: 'include'
+                }
+            );
+            if (!response.ok) throw new Error('Failed to delete product');
+            await fetchStoreProducts();
+        } catch (error) {
+            console.error('Error deleting product:', error);
+        }
+    };
+
+    const handleEditStock = async (productId, newStock) => {
+        try {
+            const response = await fetch(
+                `http://localhost:5555/products/edit/${productId}/${newStock}`,
+                {
+                    method: 'PUT',
+                    credentials: 'include'
+                }
+            );
+            if (!response.ok) throw new Error('Failed to update stock');
+            await fetchStoreProducts();
+            setEditMode({ ...editMode, [productId]: false });
+        } catch (error) {
+            console.error('Error updating stock:', error);
+        }
+    };
+
+    if (!storeInfo) {
+        return <div>Loading store information...</div>;
     }
 
     return (
         <div className="store-dashboard">
-            <h2>Store Dashboard</h2>
-
-            {/* Add Product Form */}
-            <div className="dashboard-section">
-                <h3>Add New Product</h3>
-                <form onSubmit={handleSubmit}>
+            <h1>{storeInfo.storeName} Dashboard</h1>
+            
+            <div className="add-product-section">
+                <h2>Add New Product</h2>
+                <form onSubmit={handleAddProduct}>
                     <select
-                        value={selectedProduct}
-                        onChange={(e) => setSelectedProduct(e.target.value)}
+                        value={newProduct.productID}
+                        onChange={(e) => setNewProduct({ ...newProduct, productID: e.target.value })}
                         required
                     >
                         <option value="">Select a product</option>
-                        {products.map(product => (
+                        {allProducts.map(product => (
                             <option key={product.ID} value={product.ID}>
                                 {product.name}
                             </option>
                         ))}
                     </select>
-
                     <input
                         type="number"
-                        step="0.01"
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                        placeholder="Enter price"
+                        placeholder="Price"
+                        value={newProduct.price}
+                        onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
                         required
                     />
-
                     <input
                         type="number"
-                        value={stock}
-                        onChange={(e) => setStock(e.target.value)}
-                        placeholder="Enter initial stock"
+                        placeholder="Stock"
+                        value={newProduct.stock}
+                        onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
                         required
                     />
-
-                    <button type="submit" disabled={loading}>
-                        {loading ? 'Adding...' : 'Add Product'}
-                    </button>
+                    <button type="submit">Add Product</button>
                 </form>
             </div>
 
-            {/* Store Products List */}
-            <div className="dashboard-section">
-                <h3>Your Products</h3>
-                <div className="products-list">
-                    {storeProducts.map(product => (
-                        <div key={product.product_ID} className="product-item">
-                            <div className="product-info">
-                                <h4>{product.productName}</h4>
-                                <p>Price: ${product.price}</p>
-                                <div className="stock-management">
-                                    {editingStock === product.product_ID ? (
-                                        <div className="stock-edit">
-                                            <input
-                                                type="number"
-                                                value={newStock}
-                                                onChange={(e) => setNewStock(e.target.value)}
-                                                placeholder="New stock amount"
-                                            />
-                                            <button onClick={() => handleUpdateStock(product.product_ID)}>
-                                                Save
-                                            </button>
-                                            <button onClick={() => {
-                                                setEditingStock(null);
-                                                setNewStock('');
-                                            }}>
-                                                Cancel
-                                            </button>
-                                        </div>
+            <div className="products-list">
+                <h2>Store Products</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {products.map(product => (
+                            <tr key={product.ID}>
+                                <td>{product.name}</td>
+                                <td>${product.store_price}</td>
+                                <td>
+                                    {editMode[product.ID] ? (
+                                        <input
+                                            type="number"
+                                            defaultValue={product.stock}
+                                            onBlur={(e) => handleEditStock(product.ID, e.target.value)}
+                                        />
                                     ) : (
-                                        <>
-                                            <p>Stock: {product.stock}</p>
-                                            <button onClick={() => {
-                                                setEditingStock(product.product_ID);
-                                                setNewStock(product.stock.toString());
-                                            }}>
-                                                Update Stock
-                                            </button>
-                                        </>
+                                        <span onClick={() => setEditMode({ ...editMode, [product.ID]: true })}>
+                                            {product.stock}
+                                        </span>
                                     )}
-                                </div>
-                            </div>
-                            <button
-                                className="remove-button"
-                                onClick={() => handleRemoveProduct(product.product_ID)}
-                            >
-                                Remove Product
-                            </button>
-                        </div>
-                    ))}
-                </div>
+                                </td>
+                                <td>
+                                    <button onClick={() => handleDeleteProduct(product.ID)}>
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
-
-            {message && <p className="message">{message}</p>}
         </div>
     );
 };

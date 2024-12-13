@@ -10,6 +10,7 @@ import Products from './Products';
 import Footer from './Footer';
 import AdminDashboard from './AdminDashboard';
 import StoreDashboard from './StoreDashboard';
+import PCBuilder from './PCBuilder';
 import './main.css';
 
 const Main = () => {
@@ -107,6 +108,8 @@ const Main = () => {
                 return <StoreDashboard navigate={navigate} />;
             default:
                 return <Home navigate={navigate} isAuthenticated={isAuthenticated} />;
+            case 'PCBuilder':
+                return <PCBuilder navigate={navigate} />
         }
     };
 

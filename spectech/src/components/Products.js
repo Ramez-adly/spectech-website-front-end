@@ -25,7 +25,9 @@ const Products = ({ navigate, isAuthenticated }) => {
             'Samsung 980.jpeg',
             'asus tuf gaming 1200W.jpeg',
             'Logitech G502 Hero.jpeg',
-            'Crucial RAM 32GB.jpeg',
+            'Crucial RAM 32GB.jpg',
+            'xigmatek Case.jpeg',
+            'Alseye.jpeg'
         ];
 
         const matchingImage = availableImages.find(imageName => 
