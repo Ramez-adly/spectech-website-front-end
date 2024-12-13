@@ -1,15 +1,57 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import './ProductDetails.css';
 
 const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
+    const { id } = useParams();
     const [product, setProduct] = useState(null);
+    const [stores, setStores] = useState([]);
+    const [reviews, setReviews] = useState([]);
+    const [newReview, setNewReview] = useState({
+        rating: 5,
+        comment: ''
+    });
+    const [user, setUser] = useState(null);
+    const [error, setError] = useState('');
     const [storePrices, setStorePrices] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     useEffect(() => {
         fetchProductDetails();
-    }, [productId]);
+        fetchReviews();
+        checkAuth();
+    }, [id]);
+
+    const checkAuth = async () => {
+        try {
+            const response = await fetch('http://localhost:5555/check-auth', {
+                credentials: 'include'
+            });
+            if (!response.ok) throw new Error('Failed to check auth');
+            const data = await response.json();
+            console.log('Auth response:', data); // Debug log
+            if (data.authenticated) {
+                // Get the user ID from the session cookie
+                const userResponse = await fetch('http://localhost:5555/user', {
+                    credentials: 'include'
+                });
+                const userData = await userResponse.json();
+                console.log('User data:', userData);
+
+                setUser({
+                    id: userData.ID,
+                    customertype: data.customertype,
+                    name: data.name,
+                    email: data.email
+                });
+            } else {
+                setUser(null);
+            }
+        } catch (error) {
+            console.error('Error checking auth:', error);
+            setUser(null);
+        }
+    };
 
     const fetchProductDetails = async () => {
         try {
@@ -43,6 +85,57 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
             setError(err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchReviews = async () => {
+        try {
+            const response = await fetch(`http://localhost:5555/products/${productId}/reviews`);
+            if (!response.ok) throw new Error('Failed to fetch reviews');
+            const data = await response.json();
+            setReviews(data);
+        } catch (error) {
+            console.error('Error fetching reviews:', error);
+        }
+    };
+
+    const handleSubmitReview = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        if (!user) {
+            setError('Please login to submit a review');
+            return;
+        }
+
+        try {
+            console.log('Submitting review with user:', user); // Debug log
+            const response = await fetch(`http://localhost:5555/reviews/product/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    userId: user.id,
+                    rating: parseInt(newReview.rating),
+                    comment: newReview.comment
+                })
+            });
+
+            const responseData = await response.json();
+            console.log('Review submission response:', responseData);
+
+            if (!response.ok) {
+                throw new Error(responseData.error || 'Failed to submit review');
+            }
+
+            // Reset form and refresh reviews
+            setNewReview({ rating: 5, comment: '' });
+            fetchReviews();
+        } catch (error) {
+            setError(error.message);
+            console.error('Error submitting review:', error);
         }
     };
 
@@ -209,6 +302,60 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
                             ))}
                     </div>
                 )}
+            </div>
+
+            <div className="reviews-section">
+                <h2>Customer Reviews</h2>
+                {console.log('Current user state:', user)}
+                
+                {user && user.customertype === 'customer' && (
+                    <div className="review-form">
+                        <h3>Write a Review</h3>
+                        {error && <div className="error-message">{error}</div>}
+                        <form onSubmit={handleSubmitReview}>
+                            <div className="rating-select">
+                                <label>Rating:</label>
+                                <select 
+                                    value={newReview.rating}
+                                    onChange={(e) => setNewReview({...newReview, rating: Number(e.target.value)})}
+                                >
+                                    <option value="5">5 Stars</option>
+                                    <option value="4">4 Stars</option>
+                                    <option value="3">3 Stars</option>
+                                    <option value="2">2 Stars</option>
+                                    <option value="1">1 Star</option>
+                                </select>
+                            </div>
+                            <div className="comment-input">
+                                <label>Comment:</label>
+                                <textarea
+                                    value={newReview.comment}
+                                    onChange={(e) => setNewReview({...newReview, comment: e.target.value})}
+                                    required
+                                    placeholder="Share your thoughts about this product..."
+                                />
+                            </div>
+                            <button type="submit">Submit Review</button>
+                        </form>
+                    </div>
+                )}
+
+                <div className="reviews-list">
+                    {reviews.map(review => (
+                        <div key={review.ID} className="review-card">
+                            <div className="review-header">
+                                <span className="reviewer-name">{review.userName}</span>
+                                <span className="rating">
+                                    {'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)}
+                                </span>
+                            </div>
+                            <p className="review-comment">{review.comment}</p>
+                        </div>
+                    ))}
+                    {reviews.length === 0 && (
+                        <p className="no-reviews">No reviews yet. Be the first to review this product!</p>
+                    )}
+                </div>
             </div>
         </div>
     );
