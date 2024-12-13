@@ -30,21 +30,20 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
             if (!response.ok) throw new Error('Failed to check auth');
             const data = await response.json();
             console.log('Auth response:', data); // Debug log
-            if (data.authenticated) {
-                // Get the user ID from the session cookie
-                const userResponse = await fetch('http://localhost:5555/user', {
-                    credentials: 'include'
-                });
-                const userData = await userResponse.json();
-                console.log('User data:', userData);
 
+            if (data.authenticated) {
                 setUser({
-                    id: userData.ID,
+                    id: data.ID,
                     customertype: data.customertype,
-                    name: data.name,
-                    email: data.email
+                    name: data.name
+                });
+                console.log('Set user to:', {
+                    id: data.ID,
+                    customertype: data.customertype,
+                    name: data.name
                 });
             } else {
+                console.log('Not authenticated');
                 setUser(null);
             }
         } catch (error) {
@@ -52,6 +51,10 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
             setUser(null);
         }
     };
+
+    useEffect(() => {
+        console.log('Current user state:', user);
+    }, [user]);
 
     const fetchProductDetails = async () => {
         try {
@@ -108,19 +111,26 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
             return;
         }
 
+        console.log('Current user state before review:', user);
+
         try {
-            console.log('Submitting review with user:', user); // Debug log
+            console.log('Product ID:', productId);
+            
+            // Make sure we're sending the correct ID format
+            const reviewData = {
+                userId: user.id,  // This should match ID=1 from your database
+                rating: parseInt(newReview.rating),
+                comment: newReview.comment
+            };
+            console.log('Sending review data:', reviewData);
+
             const response = await fetch(`http://localhost:5555/reviews/product/${productId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',
-                body: JSON.stringify({
-                    userId: user.id,
-                    rating: parseInt(newReview.rating),
-                    comment: newReview.comment
-                })
+                body: JSON.stringify(reviewData)
             });
 
             const responseData = await response.json();
@@ -306,7 +316,6 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
 
             <div className="reviews-section">
                 <h2>Customer Reviews</h2>
-                {console.log('Current user state:', user)}
                 
                 {user && user.customertype === 'customer' && (
                     <div className="review-form">
