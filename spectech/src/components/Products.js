@@ -166,13 +166,6 @@ const Products = ({ navigate, isAuthenticated }) => {
                                 }}>{product.name}</h2>
                                 <p>Price: ${product.price.toFixed(2)}</p>
                                 <p>Category: {product.category}</p>
-                                <button 
-                                    className="buy-button"
-                                    onClick={() => addToCart(product)}
-                                    disabled={product.stock <= 0}
-                                >
-                                    {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                                </button>
                             </div>
                         </div>
                     );

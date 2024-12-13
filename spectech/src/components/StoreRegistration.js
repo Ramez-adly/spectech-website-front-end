@@ -11,23 +11,22 @@ const StoreRegistration = ({navigate}) => {
     let message = '';
 
     const registerStore = async () => {
-        // Get the user ID from localStorage
-            const userId = localStorage.getItem('pendingStoreUserId');
-        console.log('Retrieved user ID from localStorage:', userId);
-        
-            if (!userId) {
-            alert('Please register as a store owner first');
-            navigate('register');
-            return;
+        try {
+            // First verify if user is authenticated and is a store owner
+            const authResponse = await fetch('http://localhost:5555/check-auth', {
+                credentials: 'include'
+            });
+            
+            const authData = await authResponse.json();
+            if (!authData.authenticated || authData.customertype !== 'store') {
+                throw new Error('Please register as a store owner first');
             }
 
-        try {
             const response = await fetch('http://localhost:5555/store/register', {
                 credentials: 'include',
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    userId,
                     storeName,
                     storeDescription,
                     location,
@@ -43,9 +42,6 @@ const StoreRegistration = ({navigate}) => {
             if (!response.ok) {
                 throw new Error(data.message || 'Store registration failed');
             }
-
-            // Clear the stored user ID after successful registration
-            localStorage.removeItem('pendingStoreUserId');
             
             message = 'Store registration successful';
             alert(message);
@@ -53,6 +49,9 @@ const StoreRegistration = ({navigate}) => {
         } catch (error) {
             message = error.message;
             alert(message);
+            if (error.message.includes('Please register as a store owner first')) {
+                navigate('register');
+            }
         }
     };
 

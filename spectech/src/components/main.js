@@ -9,6 +9,7 @@ import ProductDetails from './ProductDetails';
 import Products from './Products';
 import Footer from './Footer';
 import AdminDashboard from './AdminDashboard';
+import StoreDashboard from './StoreDashboard';
 import './main.css';
 
 const Main = () => {
@@ -16,10 +17,6 @@ const Main = () => {
     const [pageProps, setPageProps] = useState({});
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userType, setUserType] = useState(null);
-
-    useEffect(() => {
-        checkAuthStatus();
-    }, [currentPage]);
 
     const checkAuthStatus = async () => {
         try {
@@ -31,6 +28,7 @@ const Main = () => {
                 }
             });
             const data = await response.json();
+            console.log('Auth check response:', data); // Debug log
             
             if (response.ok && data.authenticated) {
                 setIsAuthenticated(true);
@@ -38,8 +36,8 @@ const Main = () => {
             } else {
                 setIsAuthenticated(false);
                 setUserType(null);
-                // Redirect if trying to access protected pages while not authenticated
-                if (['cart', 'admin', 'store-dashboard'].includes(currentPage)) {
+                // Only redirect if not authenticated
+                if (!data.authenticated && ['cart', 'AdminDashboard', 'store-dashboard'].includes(currentPage)) {
                     setCurrentPage('login');
                 }
             }
@@ -50,15 +48,23 @@ const Main = () => {
         }
     };
 
+    useEffect(() => {
+        checkAuthStatus();
+        window.addEventListener('auth-change', checkAuthStatus);
+        return () => window.removeEventListener('auth-change', checkAuthStatus);
+    }, [currentPage]); // Add currentPage as dependency
+
     const navigate = (page, props = {}) => {
+        setCurrentPage(page);
+        setPageProps(props);
         // Check if page requires authentication
-        if (['cart', 'admin', 'store-dashboard', 'profile'].includes(page) && !isAuthenticated) {
+        if (['cart', 'AdminDashboard', 'store-dashboard', 'profile'].includes(page) && !isAuthenticated) {
             setCurrentPage('login');
             return;
         }
 
         // Check if page requires specific user type
-        if (page === 'admin' && userType !== 'admin') {
+        if (page === 'AdminDashboard' && userType !== 'admin') {
             setCurrentPage('home');
             return;
         }
@@ -95,8 +101,10 @@ const Main = () => {
                     navigate={navigate} 
                     isAuthenticated={isAuthenticated}
                 />;
-            case 'admin':
+            case 'AdminDashboard':
                 return <AdminDashboard navigate={navigate} />;
+            case 'store-dashboard':
+                return <StoreDashboard navigate={navigate} />;
             default:
                 return <Home navigate={navigate} isAuthenticated={isAuthenticated} />;
         }
@@ -109,12 +117,10 @@ const Main = () => {
                 isAuthenticated={isAuthenticated}
                 userType={userType}
             />
-            <div className="content">
-                {renderPage()}
-            </div>
+            {renderPage()}
             <Footer navigate={navigate}/>
         </div>
     );
-};
+}
 
 export default Main;

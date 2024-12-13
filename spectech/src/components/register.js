@@ -10,7 +10,7 @@ const RegistrationForm = ({navigate}) => {
 
     const registerUser = async () => {
         try {
-            const response = await fetch('http://localhost:5555/user/register', {
+            const response = await fetch('http://localhost:5555/users/register', {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
@@ -28,14 +28,7 @@ const RegistrationForm = ({navigate}) => {
             alert(message);
 
             if (customertype === 'store') {
-                if (data.user && data.user.ID) {
-                    console.log('Store user registered, ID:', data.user.ID);
-                    localStorage.setItem('pendingStoreUserId', data.user.ID);
-                    navigate('storeregistration');
-                } else {
-                    console.error('No user ID in response:', data);
-                    navigate('login');
-                }
+                navigate('storeregistration');
             } else {
                 navigate('login');
             }
