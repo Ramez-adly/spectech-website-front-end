@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './Products.css'; 
 
-const Products = ({ navigate, isAuthenticated }) => {
-    const [products, setProducts] = useState([]);
+const Products = ({ navigate,  }) => {
+    const [products, setProducts]=useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [cart, setCart] = useState(() => {
-        const savedCart = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('cart='));
-        return savedCart ? JSON.parse(decodeURIComponent(savedCart.split('=')[1])) : [];
-    });
-
     const findMatchingImage = (productName) => {
         const lowerName = productName.toLowerCase();
         
@@ -40,83 +33,24 @@ const Products = ({ navigate, isAuthenticated }) => {
 
     useEffect(() => {
         const fetchProducts = async () => {
+            setLoading(true);
             try {
-                const response = await fetch('http://localhost:5555/products'); 
+                const response = await fetch('http://localhost:5555/products');
                 if (!response.ok) {
                     throw new Error('Failed to fetch products');
                 }
                 const data = await response.json();
                 setProducts(data);
-            } catch (err) {
-                console.error('Fetch error:', err); 
-                setError(err.message);
-            } finally {
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                setError('Failed to load products. Please try again later.');
                 setLoading(false);
             }
         };
 
         fetchProducts();
     }, []);
-
-    const addToCart = async (product) => {
-        if (!isAuthenticated) {
-            alert('Please login to add items to cart');
-            navigate('login');
-            return;
-        }
-
-        try {
-            // Verify authentication and user type
-            const authResponse = await fetch('http://localhost:5555/check-auth', {
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            const authData = await authResponse.json();
-            if (!authData.authenticated) {
-                alert('Please login to add items to cart');
-                navigate('login');
-                return;
-            }
-
-            // Check if user is a customer
-            if (authData.customertype !== 'customer') {
-                alert('Only customers can add items to cart');
-                return;
-            }
-
-            const updatedCart = [...cart];
-            const existingItem = updatedCart.find(item => item.id === product.ID);
-            
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                updatedCart.push({
-                    id: product.ID,
-                    name: product.name,
-                    price: product.price,
-                    quantity: 1,
-                    image_url: product.image_url
-                });
-            }
-
-            // Save cart with a 5-hour expiration (matching backend token expiration)
-            const expirationDate = new Date();
-            expirationDate.setTime(expirationDate.getTime() + (5 * 60 * 60 * 1000));
-            document.cookie = `cart=${encodeURIComponent(JSON.stringify(updatedCart))}; expires=${expirationDate.toUTCString()}; path=/`;
-            
-            setCart(updatedCart);
-            window.dispatchEvent(new Event('cart-update'));
-            alert('Item added to cart successfully!');
-            navigate('cart');
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-            alert('Failed to add item to cart. Please try again.');
-        }
-    };
 
     if (loading) {
         return (

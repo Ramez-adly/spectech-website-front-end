@@ -4,9 +4,11 @@ import './LoginForm.css';
 const LoginForm = ({ navigate }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const loginUser = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
             const response = await fetch('http://localhost:5555/user/login', {
                 method: 'POST',
@@ -28,6 +30,8 @@ const LoginForm = ({ navigate }) => {
             }
         } catch (error) {
             alert(error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -54,17 +58,14 @@ const LoginForm = ({ navigate }) => {
                         required
                     />
                 </div>
-                <button type="submit">
-                    Login
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Logging in...' : 'Login'}
                 </button>
-                <p>
-                    Don't have an account?{' '}
-                    <span 
-                        onClick={() => navigate('register')}
-                        style={{ color: 'blue', cursor: 'pointer' }}
-                    >
-                        Register here
-                    </span>
+                <button type="button" className="login-with-google-btn">
+                    Sign in with Google
+                </button>
+                <p className="register-link">
+                    Don't have an account? <a href="#" onClick={(e) => { e.preventDefault(); navigate('register'); }}>Register here</a>
                 </p>
             </form>
         </div>

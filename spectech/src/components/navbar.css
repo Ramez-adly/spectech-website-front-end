@@ -9,6 +9,7 @@
     width: 100%;
     top: 0;
     left: 0;
+    z-index: 1000;
 }
 
 .navbar .logo {
@@ -63,28 +64,19 @@
     background-color: #2ecc71;
 }
 
-@media (max-width: 768px) {
-    .navbar {
-        padding: 0.4rem 1rem;
-    }
-    
-    .navbar ul li {
-        margin: 0 0.4rem;
-    }
-    
-    .navbar ul li a {
-        font-size: 0.8rem;
-    }
-    
-    .navbar .logo {
-        font-size: 1.2rem;
-    }
-}
-
 .cart-icon-container {
     position: relative;
     display: flex;
     align-items: center;
+    color: white;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.cart-icon-container:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .cart-icon-container svg {
@@ -107,4 +99,44 @@
     align-items: center;
     justify-content: center;
     font-weight: bold;
+}
+
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-toggle-btn svg {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.4rem 1rem;
+    }
+    
+    .navbar ul li {
+        margin: 0 0.4rem;
+    }
+    
+    .navbar ul li a {
+        font-size: 0.8rem;
+    }
+    
+    .navbar .logo {
+        font-size: 1.2rem;
+    }
 }
