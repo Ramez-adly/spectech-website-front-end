@@ -92,13 +92,14 @@ const Navbar = ({ navigate }) => {
     }
   };
 
-    const commonLinks = (
-        <>
-            <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('home'); }}>Home</a></li>
-            <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('products'); }}>Products</a></li>
-        </>
-    );
-    const renderNavLinks = () => {
+  const commonLinks = (
+    <>
+      <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('home'); }}>Home</a></li>
+      <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('products'); }}>Products</a></li>
+    </>
+  );
+  
+  const renderNavLinks = () => {
 
     // If not logged in, show login and register options
     if (!isLoggedIn) {
