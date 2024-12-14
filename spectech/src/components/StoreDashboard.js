@@ -5,6 +5,8 @@ const StoreDashboard = () => {
     const [storeInfo, setStoreInfo] = useState(null);
     const [products, setProducts] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [message, setMessage] = useState({ text: '', type: '' });
     const [newProduct, setNewProduct] = useState({
         productID: '',
         price: '',
@@ -21,7 +23,7 @@ const StoreDashboard = () => {
         if (storeInfo) {
             fetchStoreProducts();
         }
-    }, [storeInfo]);
+    }, [storeInfo, refreshTrigger]);
 
     const fetchStoreInfo = async () => {
         try {
@@ -92,26 +94,35 @@ const StoreDashboard = () => {
                 }
             );
             if (!response.ok) throw new Error('Failed to delete product');
-            await fetchStoreProducts();
+            setRefreshTrigger(prev => prev + 1);
+            setProducts(products.filter(product => product.ID !== productId));
+            setMessage({ text: 'Product deleted successfully!', type: 'success' });
+            setTimeout(() => setMessage({ text: '', type: '' }), 3000); // Clear message after 3 seconds
         } catch (error) {
             console.error('Error deleting product:', error);
+            setMessage({ text: 'Failed to delete product', type: 'error' });
+            setTimeout(() => setMessage({ text: '', type: '' }), 3000);
         }
     };
 
     const handleEditStock = async (productId, newStock) => {
         try {
             const response = await fetch(
-                `http://localhost:5555/products/edit/${productId}/${newStock}`,
+                `http://localhost:5555/stores/${storeInfo.storeId}/products/${productId}/stock/${newStock}`,
                 {
                     method: 'PUT',
                     credentials: 'include'
                 }
             );
             if (!response.ok) throw new Error('Failed to update stock');
-            await fetchStoreProducts();
+            setRefreshTrigger(prev => prev + 1);
+            setMessage({ text: 'Stock updated successfully!', type: 'success' });
+            setTimeout(() => setMessage({ text: '', type: '' }), 3000);
             setEditMode({ ...editMode, [productId]: false });
         } catch (error) {
             console.error('Error updating stock:', error);
+            setMessage({ text: 'Failed to update stock', type: 'error' });
+            setTimeout(() => setMessage({ text: '', type: '' }), 3000);
         }
     };
 
@@ -122,6 +133,12 @@ const StoreDashboard = () => {
     return (
         <div className="store-dashboard">
             <h1>{storeInfo.storeName} Dashboard</h1>
+            
+            {message.text && (
+                <div className={`message ${message.type}`}>
+                    {message.text}
+                </div>
+            )}
             
             <div className="add-product-section">
                 <h2>Add New Product</h2>
@@ -176,11 +193,30 @@ const StoreDashboard = () => {
                                     {editMode[product.ID] ? (
                                         <input
                                             type="number"
+                                            min="0"
                                             defaultValue={product.stock}
-                                            onBlur={(e) => handleEditStock(product.ID, e.target.value)}
+                                            onBlur={(e) => {
+                                                const newValue = e.target.value;
+                                                if (newValue !== product.stock?.toString()) {
+                                                    handleEditStock(product.ID, newValue);
+                                                } else {
+                                                    setEditMode({ ...editMode, [product.ID]: false });
+                                                }
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.target.blur();
+                                                } else if (e.key === 'Escape') {
+                                                    setEditMode({ ...editMode, [product.ID]: false });
+                                                }
+                                            }}
+                                            autoFocus
                                         />
                                     ) : (
-                                        <span onClick={() => setEditMode({ ...editMode, [product.ID]: true })}>
+                                        <span 
+                                            onClick={() => setEditMode({ ...editMode, [product.ID]: true })}
+                                            className="editable-stock"
+                                        >
                                             {product.stock}
                                         </span>
                                     )}

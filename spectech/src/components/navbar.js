@@ -54,7 +54,6 @@ const Navbar = ({ navigate }) => {
       }
       
       const data = await response.json();
-      console.log('Auth response:', data);  // Debug log
       
       if (data.authenticated) {
         setUserType(data.customertype);

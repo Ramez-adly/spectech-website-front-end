@@ -29,7 +29,6 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
             });
             if (!response.ok) throw new Error('Failed to check auth');
             const data = await response.json();
-            console.log('Auth response:', data); // Debug log
 
             if (data.authenticated) {
                 setUser({
@@ -37,13 +36,7 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
                     customertype: data.customertype,
                     name: data.name
                 });
-                console.log('Set user to:', {
-                    id: data.ID,
-                    customertype: data.customertype,
-                    name: data.name
-                });
             } else {
-                console.log('Not authenticated');
                 setUser(null);
             }
         } catch (error) {
@@ -227,6 +220,32 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
         }
     };
 
+    const findMatchingImage = (productName) => {
+        const lowerName = productName.toLowerCase();
+        
+        const availableImages = [
+            'Noctua.jpeg',
+            'corsair k95.jpeg',
+            'Ryzen 5 5600x.jpeg',
+            'asus ROG Swift.jpeg',
+            'Asus b450-f.jpeg',
+            'rtx 3060.jpeg',
+            'Samsung 980.jpeg',
+            'asus tuf gaming 1200W.jpeg',
+            'Logitech G502 Hero.jpeg',
+            'Crucial RAM 32GB.jpg',
+            'xigmatek Case.jpeg',
+            'Alseye.jpeg'
+        ];
+
+        const matchingImage = availableImages.find(imageName => 
+            lowerName.includes(imageName.split('.')[0].toLowerCase()) ||
+            imageName.split('.')[0].toLowerCase().includes(lowerName)
+        );
+
+        return matchingImage ? `/images/${matchingImage}` : '/images/placeholder.jpg';
+    };
+
     if (loading) return (
         <div className="loading">
             <div className="loading-spinner"></div>
@@ -259,7 +278,11 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
     return (
         <div className="product-details-container">
             <div className="product-info">
-                <img src={product.image_url} alt={product.name} className="product-image" />
+                <img 
+                    src={findMatchingImage(product.name)} 
+                    alt={product.name} 
+                    className="product-image" 
+                />
                 <div className="product-text">
                     <h2>{product.name}</h2>
                     <p className="category">Category: {product.category}</p>

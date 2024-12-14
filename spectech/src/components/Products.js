@@ -46,7 +46,6 @@ const Products = ({ navigate, isAuthenticated }) => {
                     throw new Error('Failed to fetch products');
                 }
                 const data = await response.json();
-                console.log('Products data:', data); 
                 setProducts(data);
             } catch (err) {
                 console.error('Fetch error:', err); 
