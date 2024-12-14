@@ -26,7 +26,7 @@ SpecTech is a modern e-commerce platform specializing in computer components and
 
 ### Frontend
 - React.js
-- CSS3 with modern features
+- CSS with modern features
 - React Icons for UI elements
 - Responsive design principles
 
