@@ -37,7 +37,6 @@ const StoreRegistration = ({navigate}) => {
             });
 
             const data = await response.json();
-            console.log('Store registration response:', data);
 
             if (!response.ok) {
                 throw new Error(data.message || 'Store registration failed');

@@ -29,7 +29,6 @@ const Main = () => {
                 }
             });
             const data = await response.json();
-            console.log('Auth check response:', data); // Debug log
             
             if (response.ok && data.authenticated) {
                 setIsAuthenticated(true);

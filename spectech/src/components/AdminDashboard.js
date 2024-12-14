@@ -24,7 +24,6 @@ const AdminDashboard = ({ navigate }) => {
                 }
             });
             const data = await response.json();
-            console.log('Admin auth check:', data); // Debug log
             
             if (!response.ok || data.customertype !== 'admin') {
                 navigate('login');

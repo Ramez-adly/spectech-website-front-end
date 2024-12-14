@@ -1,15 +1,53 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import './ProductDetails.css';
 
 const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
+    const { id } = useParams();
     const [product, setProduct] = useState(null);
+    const [stores, setStores] = useState([]);
+    const [reviews, setReviews] = useState([]);
+    const [newReview, setNewReview] = useState({
+        rating: 5,
+        comment: ''
+    });
+    const [user, setUser] = useState(null);
+    const [error, setError] = useState('');
     const [storePrices, setStorePrices] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     useEffect(() => {
         fetchProductDetails();
-    }, [productId]);
+        fetchReviews();
+        checkAuth();
+    }, [id]);
+
+    const checkAuth = async () => {
+        try {
+            const response = await fetch('http://localhost:5555/check-auth', {
+                credentials: 'include'
+            });
+            if (!response.ok) throw new Error('Failed to check auth');
+            const data = await response.json();
+
+            if (data.authenticated) {
+                setUser({
+                    id: data.ID,
+                    customertype: data.customertype,
+                    name: data.name
+                });
+            } else {
+                setUser(null);
+            }
+        } catch (error) {
+            console.error('Error checking auth:', error);
+            setUser(null);
+        }
+    };
+
+    useEffect(() => {
+        console.log('Current user state:', user);
+    }, [user]);
 
     const fetchProductDetails = async () => {
         try {
@@ -43,6 +81,64 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
             setError(err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchReviews = async () => {
+        try {
+            const response = await fetch(`http://localhost:5555/products/${productId}/reviews`);
+            if (!response.ok) throw new Error('Failed to fetch reviews');
+            const data = await response.json();
+            setReviews(data);
+        } catch (error) {
+            console.error('Error fetching reviews:', error);
+        }
+    };
+
+    const handleSubmitReview = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        if (!user) {
+            setError('Please login to submit a review');
+            return;
+        }
+
+        console.log('Current user state before review:', user);
+
+        try {
+            console.log('Product ID:', productId);
+            
+            // Make sure we're sending the correct ID format
+            const reviewData = {
+                userId: user.id,  // This should match ID=1 from your database
+                rating: parseInt(newReview.rating),
+                comment: newReview.comment
+            };
+            console.log('Sending review data:', reviewData);
+
+            const response = await fetch(`http://localhost:5555/reviews/product/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(reviewData)
+            });
+
+            const responseData = await response.json();
+            console.log('Review submission response:', responseData);
+
+            if (!response.ok) {
+                throw new Error(responseData.error || 'Failed to submit review');
+            }
+
+            // Reset form and refresh reviews
+            setNewReview({ rating: 5, comment: '' });
+            fetchReviews();
+        } catch (error) {
+            setError(error.message);
+            console.error('Error submitting review:', error);
         }
     };
 
@@ -124,6 +220,32 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
         }
     };
 
+    const findMatchingImage = (productName) => {
+        const lowerName = productName.toLowerCase();
+        
+        const availableImages = [
+            'Noctua.jpeg',
+            'corsair k95.jpeg',
+            'Ryzen 5 5600x.jpeg',
+            'asus ROG Swift.jpeg',
+            'Asus b450-f.jpeg',
+            'rtx 3060.jpeg',
+            'Samsung 980.jpeg',
+            'asus tuf gaming 1200W.jpeg',
+            'Logitech G502 Hero.jpeg',
+            'Crucial RAM 32GB.jpg',
+            'xigmatek Case.jpeg',
+            'Alseye.jpeg'
+        ];
+
+        const matchingImage = availableImages.find(imageName => 
+            lowerName.includes(imageName.split('.')[0].toLowerCase()) ||
+            imageName.split('.')[0].toLowerCase().includes(lowerName)
+        );
+
+        return matchingImage ? `/images/${matchingImage}` : '/images/placeholder.jpg';
+    };
+
     if (loading) return (
         <div className="loading">
             <div className="loading-spinner"></div>
@@ -156,7 +278,11 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
     return (
         <div className="product-details-container">
             <div className="product-info">
-                <img src={product.image_url} alt={product.name} className="product-image" />
+                <img 
+                    src={findMatchingImage(product.name)} 
+                    alt={product.name} 
+                    className="product-image" 
+                />
                 <div className="product-text">
                     <h2>{product.name}</h2>
                     <p className="category">Category: {product.category}</p>
@@ -209,6 +335,59 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
                             ))}
                     </div>
                 )}
+            </div>
+
+            <div className="reviews-section">
+                <h2>Customer Reviews</h2>
+                
+                {user && user.customertype === 'customer' && (
+                    <div className="review-form">
+                        <h3>Write a Review</h3>
+                        {error && <div className="error-message">{error}</div>}
+                        <form onSubmit={handleSubmitReview}>
+                            <div className="rating-select">
+                                <label>Rating:</label>
+                                <select 
+                                    value={newReview.rating}
+                                    onChange={(e) => setNewReview({...newReview, rating: Number(e.target.value)})}
+                                >
+                                    <option value="5">5 Stars</option>
+                                    <option value="4">4 Stars</option>
+                                    <option value="3">3 Stars</option>
+                                    <option value="2">2 Stars</option>
+                                    <option value="1">1 Star</option>
+                                </select>
+                            </div>
+                            <div className="comment-input">
+                                <label>Comment:</label>
+                                <textarea
+                                    value={newReview.comment}
+                                    onChange={(e) => setNewReview({...newReview, comment: e.target.value})}
+                                    required
+                                    placeholder="Share your thoughts about this product..."
+                                />
+                            </div>
+                            <button type="submit">Submit Review</button>
+                        </form>
+                    </div>
+                )}
+
+                <div className="reviews-list">
+                    {reviews.map(review => (
+                        <div key={review.ID} className="review-card">
+                            <div className="review-header">
+                                <span className="reviewer-name">{review.userName}</span>
+                                <span className="rating">
+                                    {'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)}
+                                </span>
+                            </div>
+                            <p className="review-comment">{review.comment}</p>
+                        </div>
+                    ))}
+                    {reviews.length === 0 && (
+                        <p className="no-reviews">No reviews yet. Be the first to review this product!</p>
+                    )}
+                </div>
             </div>
         </div>
     );
