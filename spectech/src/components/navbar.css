@@ -101,6 +101,28 @@
     font-weight: bold;
 }
 
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-toggle-btn svg {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
 @media (max-width: 768px) {
     .navbar {
         padding: 0.4rem 1rem;

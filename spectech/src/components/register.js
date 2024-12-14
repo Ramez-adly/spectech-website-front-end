@@ -7,11 +7,9 @@ const RegistrationForm = ({navigate}) => {
     let password = '';
     let customertype = 'customer';
     let message = '';
-    let loading = false;
 
     const registerUser = async () => {
         try {
-            loading = true;
             const response = await fetch('http://localhost:5555/users/register', {
                 method: 'POST',
                 credentials: 'include',
@@ -37,8 +35,6 @@ const RegistrationForm = ({navigate}) => {
         } catch (error) {
             message = error.message;
             alert(message);
-        } finally {
-            loading = false;
         }
     };
 
@@ -81,14 +77,17 @@ const RegistrationForm = ({navigate}) => {
                     </label>
                     <span className="switch-label">Store Owner</span>
                 </div>
-                <button type="button" onClick={registerUser} disabled={loading}>
-                    {loading ? 'Registering...' : 'Register'}
+                <button type="button" onClick={registerUser}>
+                    Register
                 </button>
-                <button type="button" className="login-with-google-btn">
-                    Sign up with Google
-                </button>
-                <p className="login-link">
-                    Already have an account? <a href="#" onClick={(e) => { e.preventDefault(); navigate('login'); }}>Login here</a>
+                <p>
+                    Already have an account?{' '}
+                    <span 
+                        onClick={() => navigate('login')}
+                        style={{ color: 'blue', cursor: 'pointer' }}
+                    >
+                        Login here
+                    </span>
                 </p>
             </form>
         </div>
