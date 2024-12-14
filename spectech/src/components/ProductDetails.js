@@ -36,7 +36,13 @@ const ProductDetails = ({ productId, navigate, isAuthenticated }) => {
                     customertype: data.customertype,
                     name: data.name
                 });
+                console.log('Set user to:', {
+                    id: data.ID,
+                    customertype: data.customertype,
+                    name: data.name
+                });
             } else {
+                console.log('Not authenticated');
                 setUser(null);
             }
         } catch (error) {
